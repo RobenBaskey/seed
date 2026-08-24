@@ -1,0 +1,37 @@
+import 'package:flutter/material.dart';
+import '../constants/app_spacing.dart';
+import '../theme/app_text_styles.dart';
+
+/// Placeholder shown for empty lists/screens across features
+/// (e.g. "No orders yet").
+class EmptyState extends StatelessWidget {
+  const EmptyState({
+    super.key,
+    required this.message,
+    this.icon = Icons.inbox_outlined,
+  });
+
+  final String message;
+  final IconData icon;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 48, color: Theme.of(context).colorScheme.outline),
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: AppTextStyles.bodyMedium,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
