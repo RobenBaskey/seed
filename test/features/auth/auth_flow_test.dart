@@ -3,6 +3,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:seed/core/errors/failures.dart';
+import 'package:seed/core/routes/app_routes.dart';
 import 'package:seed/features/auth/data/datasources/auth_remote_data_source.dart';
 import 'package:seed/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:seed/features/auth/domain/entities/demo_account.dart';
@@ -58,6 +59,32 @@ void main() {
 
     await repository.logout();
     expect(await repository.getCurrentUser(), isNull);
+  });
+
+  test('rememberMe: false logs in without persisting the session', () async {
+    final account = DemoAccounts.all.first;
+    final user = await repository.login(
+      email: account.email,
+      password: account.password,
+      rememberMe: false,
+    );
+
+    expect(user.role, account.role);
+    expect(await repository.getCurrentUser(), isNull);
+  });
+
+  group('Post-login routing', () {
+    for (final entry in {
+      UserRole.admin: AppRoutes.adminDashboard,
+      UserRole.manager: AppRoutes.managerDashboard,
+      UserRole.salesRepresentative: AppRoutes.salesDashboard,
+      UserRole.fieldOfficer: AppRoutes.fieldDashboard,
+      UserRole.dealer: AppRoutes.dealerDashboard,
+    }.entries) {
+      test('${entry.key.displayName} routes to ${entry.value}', () {
+        expect(AppRoutes.dashboardForRole(entry.key), entry.value);
+      });
+    }
   });
 
   group('Role permissions', () {

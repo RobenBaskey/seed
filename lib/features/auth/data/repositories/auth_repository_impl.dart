@@ -19,10 +19,12 @@ class AuthRepositoryImpl implements AuthRepository {
   final AuthLocalDataSource _localDataSource;
 
   @override
-  Future<User> login({required String email, required String password}) async {
+  Future<User> login({required String email, required String password, bool rememberMe = true}) async {
     try {
       final user = await _remoteDataSource.login(email: email, password: password);
-      await _localDataSource.cacheUser(user);
+      if (rememberMe) {
+        await _localDataSource.cacheUser(user);
+      }
       return user;
     } catch (e) {
       throw mapExceptionToFailure(e);

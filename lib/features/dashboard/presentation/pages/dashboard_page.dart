@@ -15,7 +15,10 @@ class DashboardPage extends GetView<DashboardController> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboard'),
+        title: Obx(() {
+          final role = controller.authController.currentUser.value?.role;
+          return Text(role != null ? '${role.displayName} Dashboard' : 'Dashboard');
+        }),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout_rounded),

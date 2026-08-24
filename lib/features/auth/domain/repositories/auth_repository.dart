@@ -4,7 +4,10 @@ import '../entities/user.dart';
 /// with a demo data source today; swap in a Dio-based remote data source
 /// later without touching this interface or any of its callers.
 abstract class AuthRepository {
-  Future<User> login({required String email, required String password});
+  /// When [rememberMe] is false the session is kept in memory for this
+  /// run only — nothing is persisted, so the user is signed out again
+  /// the next time the app starts.
+  Future<User> login({required String email, required String password, bool rememberMe = true});
 
   Future<void> logout();
 

@@ -5,13 +5,14 @@ import '../entities/user.dart';
 import '../repositories/auth_repository.dart';
 
 class LoginParams extends Equatable {
-  const LoginParams({required this.email, required this.password});
+  const LoginParams({required this.email, required this.password, this.rememberMe = true});
 
   final String email;
   final String password;
+  final bool rememberMe;
 
   @override
-  List<Object?> get props => [email, password];
+  List<Object?> get props => [email, password, rememberMe];
 }
 
 class LoginUseCase implements UseCase<User, LoginParams> {
@@ -21,6 +22,6 @@ class LoginUseCase implements UseCase<User, LoginParams> {
 
   @override
   Future<User> call(LoginParams params) {
-    return _repository.login(email: params.email, password: params.password);
+    return _repository.login(email: params.email, password: params.password, rememberMe: params.rememberMe);
   }
 }

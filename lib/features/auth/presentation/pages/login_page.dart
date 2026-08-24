@@ -11,6 +11,7 @@ import '../../../../core/utils/validators.dart';
 import '../../../../core/widgets/widgets.dart';
 import '../../domain/entities/demo_account.dart';
 import '../controllers/auth_controller.dart';
+import '../widgets/forgot_password_dialog.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -24,6 +25,7 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _authController = Get.find<AuthController>();
+  bool _rememberMe = true;
 
   @override
   void dispose() {
@@ -45,18 +47,12 @@ class _LoginPageState extends State<LoginPage> {
     final success = await _authController.login(
       email: _emailController.text,
       password: _passwordController.text,
+      rememberMe: _rememberMe,
     );
-    if (!mounted) return;
+    if (!mounted || !success) return;
 
-    if (success) {
-      Get.offAllNamed(AppRoutes.dashboard);
-    } else {
-      Get.snackbar(
-        'Login failed',
-        _authController.errorMessage.value,
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    }
+    final role = _authController.currentUser.value!.role;
+    Get.offAllNamed(AppRoutes.dashboardForRole(role));
   }
 
   @override
@@ -101,6 +97,14 @@ class _LoginPageState extends State<LoginPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                          Obx(() {
+                            final message = _authController.errorMessage.value;
+                            if (message.isEmpty) return const SizedBox.shrink();
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                              child: _LoginErrorBanner(message: message),
+                            );
+                          }),
                           AppTextField(
                             controller: _emailController,
                             label: 'Email',
@@ -122,7 +126,47 @@ class _LoginPageState extends State<LoginPage> {
                             onFieldSubmitted: (_) => _submit(),
                             autofillHints: const [AutofillHints.password],
                           ),
-                          const SizedBox(height: AppSpacing.lg),
+                          const SizedBox(height: AppSpacing.sm),
+                          Wrap(
+                            alignment: WrapAlignment.spaceBetween,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            runSpacing: AppSpacing.xxs,
+                            children: [
+                              InkWell(
+                                borderRadius: BorderRadius.circular(AppRadius.sm),
+                                onTap: () => setState(() => _rememberMe = !_rememberMe),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      SizedBox(
+                                        height: 22,
+                                        width: 22,
+                                        child: Checkbox(
+                                          value: _rememberMe,
+                                          onChanged: (value) => setState(() => _rememberMe = value ?? true),
+                                        ),
+                                      ),
+                                      const SizedBox(width: AppSpacing.xs),
+                                      Text('Remember me', style: AppTextStyles.bodySmall),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              TextButton(
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+                                ),
+                                onPressed: () => ForgotPasswordDialog.show(
+                                  context,
+                                  initialEmail: _emailController.text,
+                                ),
+                                child: const Text('Forgot password?'),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: AppSpacing.md),
                           Obx(
                             () => AppButton(
                               label: 'Login',
@@ -136,7 +180,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: AppSpacing.xl),
                   Text(
-                    'DEMO ACCOUNTS — TAP TO FILL',
+                    'DEMO ACCOUNTS (DEVELOPMENT) — TAP TO FILL',
                     style: AppTextStyles.labelSmall,
                     textAlign: TextAlign.center,
                   ),
@@ -158,6 +202,39 @@ class _LoginPageState extends State<LoginPage> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Inline error state for a failed login attempt — kept persistent on
+/// the form (rather than a transient snackbar) so the reason for the
+/// failure stays visible while the user corrects their input.
+class _LoginErrorBanner extends StatelessWidget {
+  const _LoginErrorBanner({required this.message});
+
+  final String message;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.sm),
+      decoration: BoxDecoration(
+        color: AppColors.errorBg,
+        borderRadius: BorderRadius.circular(AppRadius.sm),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.error_outline_rounded, size: 20, color: AppColors.error),
+          const SizedBox(width: AppSpacing.xs),
+          Expanded(
+            child: Text(
+              message,
+              style: AppTextStyles.bodySmall.copyWith(color: AppColors.errorText),
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -47,11 +47,13 @@ class AuthController extends GetxController {
     }
   }
 
-  Future<bool> login({required String email, required String password}) async {
+  Future<bool> login({required String email, required String password, bool rememberMe = true}) async {
     isLoading.value = true;
     errorMessage.value = '';
     try {
-      currentUser.value = await _loginUseCase(LoginParams(email: email, password: password));
+      currentUser.value = await _loginUseCase(
+        LoginParams(email: email, password: password, rememberMe: rememberMe),
+      );
       return true;
     } on Failure catch (failure) {
       errorMessage.value = failure.message;

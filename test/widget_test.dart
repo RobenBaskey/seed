@@ -17,11 +17,14 @@ import 'package:seed/features/auth/presentation/pages/login_page.dart';
 import 'helpers/fake_auth_local_data_source.dart';
 
 void main() {
+  late FakeAuthLocalDataSource fakeLocalDataSource;
+
   setUp(() {
     Get.testMode = true;
+    fakeLocalDataSource = FakeAuthLocalDataSource();
     final repository = AuthRepositoryImpl(
       remoteDataSource: DemoAuthRemoteDataSourceImpl(),
-      localDataSource: FakeAuthLocalDataSource(),
+      localDataSource: fakeLocalDataSource,
     );
     Get.put<AuthController>(
       AuthController(
@@ -38,7 +41,7 @@ void main() {
     return GetMaterialApp(
       home: child,
       getPages: [
-        GetPage(name: AppRoutes.dashboard, page: () => const SizedBox()),
+        for (final route in AppRoutes.dashboardRoutes) GetPage(name: route, page: () => const SizedBox()),
       ],
     );
   }
@@ -53,23 +56,44 @@ void main() {
     }
   });
 
-  testWidgets('Tapping the Admin shortcut and logging in authenticates the user', (tester) async {
+  testWidgets('Logging in as Admin authenticates and routes to the admin dashboard', (tester) async {
     await tester.pumpWidget(wrapWithApp(const LoginPage()));
     await tester.pumpAndSettle();
 
+    await tester.ensureVisible(find.text('Admin'));
     await tester.tap(find.text('Admin'));
     await tester.pumpAndSettle();
 
+    await tester.ensureVisible(find.widgetWithText(ElevatedButton, 'Login'));
     await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 700));
     await tester.pumpAndSettle();
 
-    expect(Get.find<AuthController>().isLoggedIn, isTrue);
-    expect(Get.find<AuthController>().currentUser.value?.email, 'admin@seedapp.com');
+    final authController = Get.find<AuthController>();
+    expect(authController.isLoggedIn, isTrue);
+    expect(authController.currentUser.value?.email, 'admin@seedapp.com');
+    expect(Get.currentRoute, AppRoutes.adminDashboard);
   });
 
-  testWidgets('Wrong password is rejected and the user stays logged out', (tester) async {
+  testWidgets('Logging in as Dealer routes to the dealer dashboard', (tester) async {
+    await tester.pumpWidget(wrapWithApp(const LoginPage()));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Dealer'));
+    await tester.tap(find.text('Dealer'));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.widgetWithText(ElevatedButton, 'Login'));
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 700));
+    await tester.pumpAndSettle();
+
+    expect(Get.currentRoute, AppRoutes.dealerDashboard);
+  });
+
+  testWidgets('Wrong password shows an inline error and the user stays logged out', (tester) async {
     await tester.pumpWidget(wrapWithApp(const LoginPage()));
     await tester.pumpAndSettle();
 
@@ -78,15 +102,53 @@ void main() {
     await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
     await tester.pump();
     await tester.pump(const Duration(milliseconds: 700));
+    await tester.pumpAndSettle();
 
     final authController = Get.find<AuthController>();
     expect(authController.isLoggedIn, isFalse);
-    expect(authController.errorMessage.value, isNotEmpty);
+    expect(find.text('Invalid email or password'), findsOneWidget);
+  });
 
-    // Let the login-failed snackbar's overlay animation and dismiss
-    // timer finish before the test tears down the widget tree, otherwise
-    // flutter_test flags them as leaked.
-    await tester.pump(const Duration(seconds: 4));
+  testWidgets('Unchecking Remember me still logs in but does not persist the session', (tester) async {
+    await tester.pumpWidget(wrapWithApp(const LoginPage()));
     await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Admin'));
+    await tester.tap(find.text('Admin'));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.byType(Checkbox));
+    await tester.tap(find.byType(Checkbox));
+    await tester.pump();
+
+    await tester.ensureVisible(find.widgetWithText(ElevatedButton, 'Login'));
+    await tester.tap(find.widgetWithText(ElevatedButton, 'Login'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 700));
+    await tester.pumpAndSettle();
+
+    final authController = Get.find<AuthController>();
+    expect(authController.isLoggedIn, isTrue);
+    expect(await fakeLocalDataSource.getCachedUser(), isNull);
+  });
+
+  testWidgets('Forgot password opens a dialog and can be dismissed', (tester) async {
+    await tester.pumpWidget(wrapWithApp(const LoginPage()));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Forgot password?'));
+    await tester.tap(find.text('Forgot password?'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Reset password'), findsOneWidget);
+    expect(
+      find.text("Enter your account email and we'll send you a link to reset your password."),
+      findsOneWidget,
+    );
+
+    await tester.tap(find.widgetWithText(TextButton, 'Cancel'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Reset password'), findsNothing);
   });
 }

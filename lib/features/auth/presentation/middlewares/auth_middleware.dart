@@ -18,8 +18,9 @@ class AuthMiddleware extends GetMiddleware {
     if (!authController.isLoggedIn && route != AppRoutes.login) {
       return const RouteSettings(name: AppRoutes.login);
     }
-    if (authController.isLoggedIn && route == AppRoutes.login) {
-      return const RouteSettings(name: AppRoutes.dashboard);
+    final user = authController.currentUser.value;
+    if (user != null && route == AppRoutes.login) {
+      return RouteSettings(name: AppRoutes.dashboardForRole(user.role));
     }
     return null;
   }

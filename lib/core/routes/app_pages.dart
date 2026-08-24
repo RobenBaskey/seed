@@ -4,6 +4,7 @@ import '../../features/auth/domain/entities/permission.dart';
 import '../../features/auth/presentation/bindings/auth_binding.dart';
 import '../../features/auth/presentation/middlewares/auth_middleware.dart';
 import '../../features/auth/presentation/middlewares/permission_middleware.dart';
+import '../../features/auth/presentation/middlewares/role_dashboard_middleware.dart';
 import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/collections/presentation/bindings/collections_binding.dart';
 import '../../features/collections/presentation/pages/collections_page.dart';
@@ -39,11 +40,13 @@ class AppPages {
       binding: AuthBinding(),
       middlewares: [AuthMiddleware()],
     ),
-    GetPage(
-      name: AppRoutes.dashboard,
-      page: () => const DashboardPage(),
-      binding: DashboardBinding(),
-      middlewares: [AuthMiddleware()],
+    ...AppRoutes.dashboardRoutes.map(
+      (route) => GetPage(
+        name: route,
+        page: () => const DashboardPage(),
+        binding: DashboardBinding(),
+        middlewares: [AuthMiddleware(), RoleDashboardMiddleware()],
+      ),
     ),
     GetPage(
       name: AppRoutes.dealers,

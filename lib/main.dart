@@ -24,7 +24,7 @@ class SeedApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isLoggedIn = Get.find<AuthController>().isLoggedIn;
+    final user = Get.find<AuthController>().currentUser.value;
 
     return GetMaterialApp(
       title: AppStrings.appName,
@@ -32,7 +32,7 @@ class SeedApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
-      initialRoute: isLoggedIn ? AppRoutes.dashboard : AppRoutes.login,
+      initialRoute: user != null ? AppRoutes.dashboardForRole(user.role) : AppRoutes.login,
       getPages: AppPages.pages,
     );
   }

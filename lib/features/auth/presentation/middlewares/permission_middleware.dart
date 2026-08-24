@@ -30,7 +30,7 @@ class PermissionMiddleware extends GetMiddleware {
         'You do not have permission to view this page.',
         snackPosition: SnackPosition.BOTTOM,
       );
-      return const RouteSettings(name: AppRoutes.dashboard);
+      return RouteSettings(name: AppRoutes.dashboardForRole(user.role));
     }
     return null;
   }

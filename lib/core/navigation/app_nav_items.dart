@@ -27,12 +27,6 @@ class AppNavItems {
 
   static const List<AppNavItem> all = [
     AppNavItem(
-      label: 'Dashboard',
-      icon: Icons.dashboard_outlined,
-      route: AppRoutes.dashboard,
-      permission: Permission.viewDashboard,
-    ),
-    AppNavItem(
       label: 'Dealers',
       icon: Icons.storefront_outlined,
       route: AppRoutes.dealers,
