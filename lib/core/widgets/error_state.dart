@@ -5,23 +5,21 @@ import '../constants/app_spacing.dart';
 import '../theme/app_text_styles.dart';
 import 'app_button.dart';
 
-/// Placeholder shown for empty lists/screens across features
-/// (e.g. "No orders yet"), with an optional call-to-action.
-class EmptyState extends StatelessWidget {
-  const EmptyState({
+/// Standard "something went wrong" state with an optional retry action.
+/// Use for failed loads/requests instead of ad hoc error text per screen.
+class ErrorState extends StatelessWidget {
+  const ErrorState({
     super.key,
     required this.message,
-    this.title,
-    this.icon = Icons.inbox_outlined,
-    this.actionLabel,
-    this.onAction,
+    this.title = 'Something went wrong',
+    this.retryLabel = 'Try again',
+    this.onRetry,
   });
 
   final String message;
-  final String? title;
-  final IconData icon;
-  final String? actionLabel;
-  final VoidCallback? onAction;
+  final String title;
+  final String retryLabel;
+  final VoidCallback? onRetry;
 
   @override
   Widget build(BuildContext context) {
@@ -33,27 +31,25 @@ class EmptyState extends StatelessWidget {
           children: [
             Container(
               padding: const EdgeInsets.all(AppSpacing.lg),
-              decoration: const BoxDecoration(color: AppColors.surfaceAlt, shape: BoxShape.circle),
-              child: Icon(icon, size: 40, color: AppColors.textTertiary),
+              decoration: const BoxDecoration(color: AppColors.errorBg, shape: BoxShape.circle),
+              child: const Icon(Icons.error_outline_rounded, size: 40, color: AppColors.error),
             ),
             const SizedBox(height: AppSpacing.lg),
-            if (title != null) ...[
-              Text(title!, style: AppTextStyles.headlineSmall, textAlign: TextAlign.center),
-              const SizedBox(height: AppSpacing.xs),
-            ],
+            Text(title, style: AppTextStyles.headlineSmall, textAlign: TextAlign.center),
+            const SizedBox(height: AppSpacing.xs),
             Text(
               message,
               textAlign: TextAlign.center,
               style: AppTextStyles.bodyMedium.copyWith(color: AppColors.textSecondary),
             ),
-            if (actionLabel != null) ...[
+            if (onRetry != null) ...[
               const SizedBox(height: AppSpacing.lg),
               AppButton(
-                label: actionLabel!,
-                onPressed: onAction,
-                variant: AppButtonVariant.secondary,
+                label: retryLabel,
+                onPressed: onRetry,
                 isFullWidth: false,
                 size: AppButtonSize.medium,
+                icon: Icons.refresh_rounded,
               ),
             ],
           ],

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../core/constants/app_colors.dart';
+import '../../../../core/constants/app_radius.dart';
 import '../../../../core/constants/app_spacing.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../core/theme/app_text_styles.dart';
 import '../../../../core/utils/validators.dart';
-import '../../../../core/widgets/custom_text_field.dart';
-import '../../../../core/widgets/primary_button.dart';
+import '../../../../core/widgets/widgets.dart';
 import '../../domain/entities/demo_account.dart';
 import '../controllers/auth_controller.dart';
 
@@ -61,53 +62,82 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColors.background,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(AppSpacing.lg),
-            child: Form(
-              key: _formKey,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 420),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
+                mainAxisSize: MainAxisSize.min,
                 children: [
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      color: AppColors.primary600,
+                      borderRadius: BorderRadius.circular(AppRadius.lg),
+                    ),
+                    child: const Icon(Icons.eco_rounded, color: AppColors.textOnPrimary, size: 32),
+                  ),
+                  const SizedBox(height: AppSpacing.md),
                   Text(
                     AppStrings.appName,
-                    style: AppTextStyles.headingLarge,
+                    style: AppTextStyles.displaySmall,
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: AppSpacing.xs),
+                  const SizedBox(height: AppSpacing.xxs),
                   Text(
-                    'Sign in to continue',
-                    style: AppTextStyles.bodyMedium,
+                    'Sign in to your account',
+                    style: AppTextStyles.bodyLarge.copyWith(color: AppColors.textSecondary),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: AppSpacing.xl),
-                  CustomTextField(
-                    controller: _emailController,
-                    label: 'Email',
-                    hintText: 'name@seedapp.com',
-                    keyboardType: TextInputType.emailAddress,
-                    validator: Validators.email,
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  CustomTextField(
-                    controller: _passwordController,
-                    label: 'Password',
-                    obscureText: true,
-                    validator: Validators.password,
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  Obx(
-                    () => PrimaryButton(
-                      label: 'Login',
-                      isLoading: _authController.isLoading.value,
-                      onPressed: _submit,
+                  AppCard(
+                    padding: const EdgeInsets.all(AppSpacing.lg),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          AppTextField(
+                            controller: _emailController,
+                            label: 'Email',
+                            hintText: 'name@seedapp.com',
+                            keyboardType: TextInputType.emailAddress,
+                            textInputAction: TextInputAction.next,
+                            prefixIcon: Icons.mail_outline_rounded,
+                            validator: Validators.email,
+                            autofillHints: const [AutofillHints.email],
+                          ),
+                          const SizedBox(height: AppSpacing.md),
+                          AppTextField(
+                            controller: _passwordController,
+                            label: 'Password',
+                            obscureText: true,
+                            textInputAction: TextInputAction.done,
+                            prefixIcon: Icons.lock_outline_rounded,
+                            validator: Validators.password,
+                            onFieldSubmitted: (_) => _submit(),
+                            autofillHints: const [AutofillHints.password],
+                          ),
+                          const SizedBox(height: AppSpacing.lg),
+                          Obx(
+                            () => AppButton(
+                              label: 'Login',
+                              isLoading: _authController.isLoading.value,
+                              onPressed: _submit,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: AppSpacing.xl),
                   Text(
-                    'Demo accounts (tap to fill)',
-                    style: AppTextStyles.bodySmall,
+                    'DEMO ACCOUNTS — TAP TO FILL',
+                    style: AppTextStyles.labelSmall,
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: AppSpacing.sm),
@@ -117,6 +147,7 @@ class _LoginPageState extends State<LoginPage> {
                     runSpacing: AppSpacing.sm,
                     children: DemoAccounts.all.map((account) {
                       return ActionChip(
+                        avatar: const Icon(Icons.person_outline_rounded, size: 16),
                         label: Text(account.role.displayName),
                         onPressed: () => _fillDemoAccount(account),
                       );

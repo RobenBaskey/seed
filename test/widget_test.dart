@@ -47,7 +47,7 @@ void main() {
     await tester.pumpWidget(wrapWithApp(const LoginPage()));
     await tester.pumpAndSettle();
 
-    expect(find.text('Sign in to continue'), findsOneWidget);
+    expect(find.text('Sign in to your account'), findsOneWidget);
     for (final label in ['Admin', 'Manager', 'Sales Representative', 'Field Officer', 'Dealer']) {
       expect(find.text(label), findsOneWidget);
     }
