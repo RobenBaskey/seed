@@ -1,9 +1,11 @@
 import 'package:get/get.dart';
-import '../controllers/auth_controller.dart';
 
 class AuthBinding extends Bindings {
   @override
   void dependencies() {
-    Get.lazyPut<AuthController>(() => AuthController());
+    // AuthController is a permanent singleton registered in
+    // core/di/initial_binding.dart during app bootstrap — AuthMiddleware
+    // needs it before any page binding runs. Nothing to register here;
+    // this file exists for structural symmetry with other features.
   }
 }

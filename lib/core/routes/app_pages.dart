@@ -1,7 +1,10 @@
 import 'package:get/get.dart';
 
+import '../../features/auth/domain/entities/permission.dart';
 import '../../features/auth/presentation/bindings/auth_binding.dart';
-import '../../features/auth/presentation/pages/auth_page.dart';
+import '../../features/auth/presentation/middlewares/auth_middleware.dart';
+import '../../features/auth/presentation/middlewares/permission_middleware.dart';
+import '../../features/auth/presentation/pages/login_page.dart';
 import '../../features/collections/presentation/bindings/collections_binding.dart';
 import '../../features/collections/presentation/pages/collections_page.dart';
 import '../../features/dashboard/presentation/bindings/dashboard_binding.dart';
@@ -23,60 +26,72 @@ import '../../features/visits/presentation/pages/visits_page.dart';
 import 'app_routes.dart';
 
 /// GetX route table. Each entry pairs a page with the binding that
-/// provisions its controller(s) via `Get.lazyPut`.
+/// provisions its controller(s), plus the middlewares that guard it:
+/// [AuthMiddleware] requires a signed-in user, [PermissionMiddleware]
+/// additionally requires a specific role permission.
 class AppPages {
   const AppPages._();
 
   static final List<GetPage> pages = [
     GetPage(
       name: AppRoutes.login,
-      page: () => const AuthPage(),
+      page: () => const LoginPage(),
       binding: AuthBinding(),
+      middlewares: [AuthMiddleware()],
     ),
     GetPage(
       name: AppRoutes.dashboard,
       page: () => const DashboardPage(),
       binding: DashboardBinding(),
+      middlewares: [AuthMiddleware()],
     ),
     GetPage(
       name: AppRoutes.dealers,
       page: () => const DealersPage(),
       binding: DealersBinding(),
+      middlewares: [AuthMiddleware(), PermissionMiddleware(Permission.manageDealers)],
     ),
     GetPage(
       name: AppRoutes.farmers,
       page: () => const FarmersPage(),
       binding: FarmersBinding(),
+      middlewares: [AuthMiddleware(), PermissionMiddleware(Permission.manageFarmers)],
     ),
     GetPage(
       name: AppRoutes.products,
       page: () => const ProductsPage(),
       binding: ProductsBinding(),
+      middlewares: [AuthMiddleware(), PermissionMiddleware(Permission.manageProducts)],
     ),
     GetPage(
       name: AppRoutes.orders,
       page: () => const OrdersPage(),
       binding: OrdersBinding(),
+      middlewares: [AuthMiddleware(), PermissionMiddleware(Permission.viewOrders)],
     ),
     GetPage(
       name: AppRoutes.visits,
       page: () => const VisitsPage(),
       binding: VisitsBinding(),
+      middlewares: [AuthMiddleware(), PermissionMiddleware(Permission.manageVisits)],
     ),
     GetPage(
       name: AppRoutes.collections,
       page: () => const CollectionsPage(),
       binding: CollectionsBinding(),
+      middlewares: [AuthMiddleware(), PermissionMiddleware(Permission.manageCollections)],
     ),
     GetPage(
       name: AppRoutes.notifications,
       page: () => const NotificationsPage(),
       binding: NotificationsBinding(),
+      middlewares: [AuthMiddleware()],
     ),
     GetPage(
       name: AppRoutes.profile,
       page: () => const ProfilePage(),
       binding: ProfileBinding(),
+      middlewares: [AuthMiddleware()],
     ),
   ];
 }

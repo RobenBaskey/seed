@@ -1,5 +1,20 @@
 import 'package:get/get.dart';
 
-/// Controller for the Dashboard feature. No business logic yet — this is
-/// foundation scaffolding wired up to routing and DI.
-class DashboardController extends GetxController {}
+import '../../../../core/navigation/app_nav_items.dart';
+import '../../../auth/domain/entities/permission.dart';
+import '../../../auth/presentation/controllers/auth_controller.dart';
+
+class DashboardController extends GetxController {
+  final AuthController authController = Get.find<AuthController>();
+
+  /// Nav destinations the signed-in user's role is permitted to see.
+  /// Read this from inside an `Obx` — it depends on
+  /// `authController.currentUser`, a reactive value.
+  List<AppNavItem> get visibleNavItems {
+    final role = authController.currentUser.value?.role;
+    if (role == null) return const [];
+    return AppNavItems.all.where((item) => role.hasPermission(item.permission)).toList();
+  }
+
+  void logout() => authController.logout();
+}
