@@ -14,3 +14,4 @@ export 'search_field.dart';
 export 'section_header.dart';
 export 'status_chip.dart';
 export 'statistic_card.dart';
+export 'user_summary_card.dart';

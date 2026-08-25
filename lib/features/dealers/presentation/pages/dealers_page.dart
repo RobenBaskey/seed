@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import '../../../../core/navigation/app_shell.dart';
+import '../../../../core/widgets/widgets.dart';
 import '../controllers/dealers_controller.dart';
 
 /// Placeholder screen for the Dealers feature.
@@ -8,9 +11,13 @@ class DealersPage extends GetView<DealersController> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return AppShell(
       appBar: AppBar(title: const Text('Dealers')),
-      body: const Center(child: Text('Dealers feature coming soon')),
+      body: const EmptyState(
+        icon: Icons.storefront_outlined,
+        title: 'Dealers',
+        message: 'Dealers is coming soon.',
+      ),
     );
   }
 }

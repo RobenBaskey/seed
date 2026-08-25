@@ -17,12 +17,22 @@ class AppRoutes {
   static const String fieldDashboard = '/field-dashboard';
   static const String dealerDashboard = '/dealer-dashboard';
 
+  // Primary tab destinations (see core/navigation/role_navigation.dart
+  // for which roles see which of these).
   static const String dealers = '/dealers';
   static const String farmers = '/farmers';
   static const String products = '/products';
   static const String orders = '/orders';
   static const String visits = '/visits';
-  static const String collections = '/collections';
+  static const String sales = '/sales';
+  static const String users = '/users';
+  static const String reports = '/reports';
+  static const String activities = '/activities';
+  static const String payments = '/payments';
+  static const String more = '/more';
+
+  // Reached from the More tab, not from the tab bar itself — open to
+  // every signed-in user regardless of role.
   static const String notifications = '/notifications';
   static const String profile = '/profile';
 
